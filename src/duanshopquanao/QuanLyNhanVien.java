@@ -228,13 +228,13 @@ public class QuanLyNhanVien extends javax.swing.JFrame {
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
         // TODO add your handling code here:
         addNV();
-        reset();
+        
     }//GEN-LAST:event_btnSaveActionPerformed
 
     private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
         // TODO add your handling code here:
         updateNV();
-        reset();
+        
     }//GEN-LAST:event_btnUpdateActionPerformed
 
     private void SearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SearchActionPerformed
@@ -245,7 +245,7 @@ public class QuanLyNhanVien extends javax.swing.JFrame {
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
         // TODO add your handling code here:
         deleteNV();
-        reset();
+        
     }//GEN-LAST:event_btnDeleteActionPerformed
 
     /**
@@ -314,7 +314,7 @@ public class QuanLyNhanVien extends javax.swing.JFrame {
         model = (DefaultTableModel) tblList.getModel();
         model.setRowCount(0);
         for (QLNV x : nvList) {
-            model.addRow(new Object[]{x.getMaNV(), x.getTenNV(), x.getChucVu(), String.format("%,2f", x.getLuong())});
+            model.addRow(new Object[]{x.getMaNV(), x.getTenNV(), x.getChucVu(), String.format("%.2f", x.getLuong())});
         }
     }
 
@@ -388,7 +388,7 @@ public class QuanLyNhanVien extends javax.swing.JFrame {
     public void reset(){
         txtManhanvien.setText("");
         txtTenNhanVien.setText("");
-        cboChucvu.setSelectedItem("vui lòng chọn");
+        cboChucvu.setSelectedItem("Vui lòng chọn");
         txtLuong.setText("");
     }
 
@@ -397,23 +397,28 @@ public class QuanLyNhanVien extends javax.swing.JFrame {
             if (chkTrungMa(txtManhanvien.getText())) {
                 JOptionPane.showMessageDialog(rootPane, "Mã nhân viên đã tổn tại", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
-            }
+            }else{
             nvList.add(readForm());
             JOptionPane.showMessageDialog(rootPane, "Thêm nhân viên thành công!");
             fillDataToTable();
+            reset();
+            }
         }
+        
     }
 
     public void updateNV() {
-            
+        if(validateForm()== true){
             capnhat(readForm());
             fillDataToTable();
             JOptionPane.showMessageDialog(rootPane, "Cập nhật nhân viên thành công");
+            reset();
+        }
         
     }
 
     public void capnhat(QLNV newnv) {
-        if (validateForm()) {
+        
             QLNV nv1 = findNv(newnv.getMaNV());
             if (nv1 != null) {
                 nv1.setMaNV(newnv.getMaNV());
@@ -421,7 +426,7 @@ public class QuanLyNhanVien extends javax.swing.JFrame {
                 nv1.setChucVu(newnv.getChucVu());
                 nv1.setLuong(newnv.getLuong());
 
-            }
+            
         }
     }
 
@@ -435,24 +440,29 @@ public class QuanLyNhanVien extends javax.swing.JFrame {
     }
 
     public void searchNV() {
-        int i;
-        String tim = JOptionPane.showInputDialog("Tìm nhân viên theo mã");
-        if (tim.isEmpty()) {
-            JOptionPane.showMessageDialog(rootPane, "Không đc bỏ trống ô tìm, mời bạn nhập lại");
-            return;
-        }
-        for (i = 0; i < nvList.size(); i++) {
-            QLNV qlnv = nvList.get(i);
-            if (qlnv.getMaNV().equals(tim)) {
-                JOptionPane.showMessageDialog(rootPane, "Tìm thành công nhân viên cần tìm");
-                currentIndex = i;
-                fillDataControl(qlnv);
-                break;
+        try {
+            int i;
+            String tim = JOptionPane.showInputDialog("Tìm nhân viên theo mã");
+            if (tim.isEmpty()) {
+                JOptionPane.showMessageDialog(rootPane, "Không đc bỏ trống ô tìm, mời bạn nhập lại");
+                return;
             }
+            for (i = 0; i < nvList.size(); i++) {
+                QLNV qlnv = nvList.get(i);
+                if (qlnv.getMaNV().equals(tim)) {
+                    JOptionPane.showMessageDialog(rootPane, "Tìm thành công nhân viên cần tìm");
+                    currentIndex = i;
+                    fillDataControl(qlnv);
+                    break;
+                }
+            }
+            if (i == nvList.size()) {
+                JOptionPane.showMessageDialog(rootPane, "Mã nhân viên không tồn tại");
+                reset();
+            }
+        } catch (Exception e) {
         }
-        if (i == nvList.size()) {
-            JOptionPane.showMessageDialog(rootPane, "Mã nhân viên không tồn tại");
-        }
+        
     }
 
     public void deleteNV() {
@@ -468,6 +478,7 @@ public class QuanLyNhanVien extends javax.swing.JFrame {
                     nvList.remove(ql);
                     fillDataToTable();
                     JOptionPane.showMessageDialog(rootPane, "Xóa thành công");
+                    reset();
                     return;
                 } else {
                     return;
