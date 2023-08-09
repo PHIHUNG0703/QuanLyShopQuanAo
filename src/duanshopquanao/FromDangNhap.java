@@ -4,8 +4,15 @@
  */
 package duanshopquanao;
 
+import duanshopquanao.QuanLyNhanVien;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import java.sql.Statement;
+import java.sql.PreparedStatement;
+import java.sql.DriverManager;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  *
@@ -19,6 +26,7 @@ public class FromDangNhap extends javax.swing.JFrame {
     public FromDangNhap() {
         initComponents();
         setLocationRelativeTo(null);
+
     }
 
     /**
@@ -166,7 +174,6 @@ public class FromDangNhap extends javax.swing.JFrame {
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
         // TODO add your handling code here:
         LoginForm();
-
     }//GEN-LAST:event_btnLoginActionPerformed
 
     /**
@@ -216,48 +223,146 @@ public class FromDangNhap extends javax.swing.JFrame {
     private javax.swing.JPasswordField txtPass;
     private javax.swing.JTextField txtUser;
     // End of variables declaration//GEN-END:variables
+
     public void LoginForm() {
-        String user = "User";
-        String pass = "123";
+        String username = txtUser.getText();
+        String password = txtPass.getText();
         if (txtUser.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(rootPane, "Chưa nhập User!!!","Warning",JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(rootPane, "Chưa nhập User!!!", "Warning", JOptionPane.WARNING_MESSAGE);
             txtUser.requestFocus();
             return;
         }
-        if(txtPass.getText().isEmpty()){
-            JOptionPane.showMessageDialog(rootPane, "Chưa nhập Pass!!!","Warning",JOptionPane.WARNING_MESSAGE);
+        if (txtPass.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(rootPane, "Chưa nhập Pass!!!", "Warning", JOptionPane.WARNING_MESSAGE);
             txtPass.requestFocus();
             return;
         }
-        if (txtUser.getText().equals(user) && txtPass.getText().equals(pass)) {
-            String[] luahchon = {"Quản lý nhân viên", "Quản lý khách hàng", "Quản lý sản phẩm", "Quản lý hóa đơn", "Quản lý kho"};
-            int numbercode = JOptionPane.showOptionDialog(rootPane, "Xin chào! Bạn cần gì?", "Options", 0, JOptionPane.QUESTION_MESSAGE, null, luahchon, EXIT_ON_CLOSE);
-            if (numbercode == 0) {
-                JOptionPane.showMessageDialog(rootPane, "Đăng nhập thành công\n--Quản lý nhân viên--");
-                QuanLyNhanVien qlnv = new QuanLyNhanVien();
-                qlnv.show();
-            } else if (numbercode == 1) {
-                JOptionPane.showMessageDialog(rootPane, "Đăng nhập thành công\n--Quản lý khách hàng--");
-                QuanLyKhachHang qlkh = new QuanLyKhachHang();
-                qlkh.show();
-            } else if (numbercode == 2) {
-                JOptionPane.showMessageDialog(rootPane, "Đăng nhập thành công\n--Quản lý sản phẩm--");
-                QuanLySanPham qlsp = new QuanLySanPham();
-                qlsp.show();
-            } else if (numbercode == 3) {
-                JOptionPane.showMessageDialog(rootPane, "Đăng nhập thành công\n--Quản lý hóa đơn--");
-                QuanLyHoaDon qlhd = new QuanLyHoaDon();
-                qlhd.show();
-            } else if(numbercode == 4) {
-                JOptionPane.showMessageDialog(rootPane, "Đăng nhập thành công\n--Quản lý kho--");
-                QuanLyKho qlk = new QuanLyKho();
-                qlk.show();
-            }else{
+
+        try {
+            Connection con = SQLConnect.connectionSQL();
+            Statement st = con.createStatement();
+            String sql = "select * from users where username = '" + txtUser.getText() + "'and password = '" + txtPass.getText() + "'";
+            ResultSet rs = st.executeQuery(sql);
+            if (rs.isBeforeFirst() == false) {
+                JOptionPane.showMessageDialog(rootPane, "Tài khoản hoặc mật khẩu không đúng");
                 return;
             }
-        }else{
-            JOptionPane.showMessageDialog(rootPane, "Thông tin tài khoản hoặc mật khẩu không chính xác!!","Error",JOptionPane.ERROR_MESSAGE);
-            return;
+
+            boolean admin = false;
+            while (rs.next()) {
+                admin = rs.getBoolean("admin");
+            }
+            if (admin) {
+                String[] luahchon = {"Quản lý nhân viên", "Quản lý khách hàng", "Quản lý sản phẩm", "Quản lý hóa đơn", "Quản lý kho"};
+                int numbercode = JOptionPane.showOptionDialog(rootPane, "Xin chào ADMIN !\n Bạn cần gì?", "Options", 0, JOptionPane.QUESTION_MESSAGE, null, luahchon, EXIT_ON_CLOSE);
+                if (numbercode == 0) {
+                    QuanLyNhanVien qlnv = new QuanLyNhanVien();
+                    qlnv.show();
+                } else if (numbercode == 1) {
+
+                    QuanLyKhachHang qlkh = new QuanLyKhachHang();
+                    qlkh.show();
+                } else if (numbercode == 2) {
+
+                    QuanLySanPham qlsp = new QuanLySanPham();
+                    qlsp.show();
+                } else if (numbercode == 3) {
+
+                    QuanLyHoaDon qlhd = new QuanLyHoaDon();
+                    qlhd.show();
+                } else if (numbercode == 4) {
+
+                    QuanLyKho qlk = new QuanLyKho();
+                    qlk.show();
+                } else {
+                    return;
+                }
+                this.dispose();//ẩn form
+            } else {
+                String[] luachon = {"Quản lý khách hàng", "Quản lý sản phầm", "Quản lý hóa đơn"};
+                int options = JOptionPane.showOptionDialog(rootPane, "Xin chào USER !\n Bạn cần gì?", "Options", 0, JOptionPane.QUESTION_MESSAGE, null, luachon, EXIT_ON_CLOSE);
+                if (options == 0) {
+
+                    QuanLyKhachHang qlkh = new QuanLyKhachHang();
+                    qlkh.show();
+                } else if (options == 1) {
+
+                    QuanLySanPham qlsp = new QuanLySanPham();
+                    qlsp.show();
+                } else if (options == 2) {
+
+                    QuanLyHoaDon qlhd = new QuanLyHoaDon();
+                    qlhd.show();
+                }
+            }
+            this.dispose();//ẩn form
+        } catch (Exception e) {
         }
+        //User Pass chủ Shop
+//        String user = "Admin";
+//        String pass = "123";
+//        //User pass nhân viên 
+//        String user2 = "User";
+//        String pass2 = "456";
+//        if (txtUser.getText().isEmpty()) {
+//            JOptionPane.showMessageDialog(rootPane, "Chưa nhập User!!!", "Warning", JOptionPane.WARNING_MESSAGE);
+//            txtUser.requestFocus();
+//            return;
+//        }
+//        if (txtPass.getText().isEmpty()) {
+//            JOptionPane.showMessageDialog(rootPane, "Chưa nhập Pass!!!", "Warning", JOptionPane.WARNING_MESSAGE);
+//            txtPass.requestFocus();
+//            return;
+//        }
+//        if (txtUser.getText().equalsIgnoreCase(user) && txtPass.getText().equals(pass)) {
+//            String[] luahchon = {"Quản lý nhân viên", "Quản lý khách hàng", "Quản lý sản phẩm", "Quản lý hóa đơn", "Quản lý kho"};
+//            int numbercode = JOptionPane.showOptionDialog(rootPane, "Xin chào ADMIN !\n Bạn cần gì?", "Options", 0, JOptionPane.QUESTION_MESSAGE, null, luahchon, EXIT_ON_CLOSE);
+//            if (numbercode == 0) {
+//                
+//                QuanLyNhanVien qlnv = new QuanLyNhanVien();
+//                qlnv.show();
+//            } else if (numbercode == 1) {
+//               
+//                QuanLyKhachHang qlkh = new QuanLyKhachHang();
+//                qlkh.show();
+//            } else if (numbercode == 2) {
+//                
+//                QuanLySanPham qlsp = new QuanLySanPham();
+//                qlsp.show();
+//            } else if (numbercode == 3) {
+//                
+//                QuanLyHoaDon qlhd = new QuanLyHoaDon();
+//                qlhd.show();
+//            } else if (numbercode == 4) {
+//                
+//                QuanLyKho qlk = new QuanLyKho();
+//                qlk.show();
+//            } else {
+//                return;
+//            }
+//            this.dispose();//ẩn form
+//
+//        } else if (txtUser.getText().equalsIgnoreCase(user2) && txtPass.getText().equals(pass2)) {
+//            String[] luachon = {"Quản lý khách hàng", "Quản lý sản phầm", "Quản lý hóa đơn"};
+//            int options = JOptionPane.showOptionDialog(rootPane, "Xin chào USER !\n Bạn cần gì?", "Options", 0, JOptionPane.QUESTION_MESSAGE, null, luachon, EXIT_ON_CLOSE);
+//            if (options == 0) {
+//                
+//                QuanLyKhachHang qlkh = new QuanLyKhachHang();
+//                qlkh.show();
+//            } else if (options == 1) {
+//                
+//                QuanLySanPham qlsp = new QuanLySanPham();
+//                qlsp.show();
+//            } else if (options == 2) {
+//                
+//                QuanLyHoaDon qlhd = new QuanLyHoaDon();
+//                qlhd.show();
+//            } else {
+//                return;
+//            }
+//        } else {
+//            JOptionPane.showMessageDialog(rootPane, "Thông tin tài khoản hoặc mật khẩu không chính xác!!", "Error", JOptionPane.ERROR_MESSAGE);
+//            return;
+//        }
     }
 }

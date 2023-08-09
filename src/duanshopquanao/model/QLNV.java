@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package duanshopquanao;
+package duanshopquanao.model;
 
 /**
  *
@@ -10,12 +10,12 @@ package duanshopquanao;
  */
 public class QLNV {
     String maNV,tenNV,chucVu;
-    Double luong;
+    Float luong;
 
     public QLNV() {
     }
 
-    public QLNV(String maNV, String tenNV, String chucVu, Double luong) {
+    public QLNV(String maNV, String tenNV, String chucVu, Float luong) {
         this.maNV = maNV;
         this.tenNV = tenNV;
         this.chucVu = chucVu;
@@ -46,12 +46,15 @@ public class QLNV {
         this.chucVu = chucVu;
     }
 
-    public Double getLuong() {
+    public Float getLuong() {
         return luong;
     }
 
-    public void setLuong(Double luong) {
+    public void setLuong(Float luong) {
         this.luong = luong;
     }
+
+    
+   
     
 }
